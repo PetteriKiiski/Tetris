@@ -34,8 +34,17 @@ class Piece:
 	#id == 1, y moves
 	def set_x(self, x):
 		RemovePiece(self)
+		move_no = self.loc[0][0] - x
 		for i in range(4):
-			self.loc[i][0] -= self.loc[0][0] - x
+			if self.loc[i][0] - move_no > 9:
+				return
+			try:
+				if grid[self.loc[i][1]][self.loc[i][0] - move_no] != None:
+					return False
+			except:
+				pass
+		for i in range(4):
+			self.loc[i][0] -= move_no
 		GridPiece(self)
 	def move(self, id, speed):
 		temp_loc = self.loc
