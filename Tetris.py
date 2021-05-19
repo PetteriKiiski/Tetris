@@ -40,29 +40,40 @@ class Piece:
 				return
 			try:
 				if grid[self.loc[i][1]][self.loc[i][0] - move_no] != None:
-					return False
+					return
+			except:
+				pass
+			try:
+				if grid[self.loc[i][1] + 1][self.loc[i][0]] != None:
+					return True
 			except:
 				pass
 		for i in range(4):
 			self.loc[i][0] -= move_no
 		GridPiece(self)
+	def bottom(self, x):
+		self.move(1, 20)
+		r_val = self.loc[:]
+		self.move(1, -20)
+		return r_val
 	def move(self, id, speed):
-		temp_loc = self.loc
-		try:
-			for i in range(4):
-				temp_loc[i][id] += speed
-		except Exception as err:
-			print (err)
-			return False
-		for i in range(4):
+		for i in range(abs(speed)):
+			temp_loc = self.loc[:]
 			try:
-				if grid[temp_loc[i][1] + 1][temp_loc[i][0]] != None:
-					return False
-			except:
-				pass
-			if temp_loc[i][1] == 19:
+				for i in range(4):
+					temp_loc[i][id] += 1 if speed > 0 else -1
+			except Exception as err:
+				print (err)
 				return False
-		self.loc = temp_loc[:]
+			for i in range(4):
+				try:
+					if grid[temp_loc[i][1] + 1][temp_loc[i][0]] != None:
+						return False
+				except:
+					pass
+				if temp_loc[i][1] == 19:
+					return False
+			self.loc = temp_loc[:]
 		return True
 def RemovePiece(piece):
 	for co in piece.loc:
@@ -104,6 +115,10 @@ def Tetris():
 		canvas.fill((255, 255, 255))
 		m_pos = pygame.mouse.get_pos()
 		pieces[-1].set_x(m_pos[0] // 25)
+#		RemovePiece(pieces[-1])
+		if pieces[-1].set_x(m_pos[0] // 25):
+			GridPiece(pieces[-1])
+			pieces += [Piece(random.randint(1, 7), m_pos[0] // 25)]
 		RemovePiece(pieces[-1])
 		if time.time() - move >= 0.5:
 			move = time.time()
@@ -111,6 +126,9 @@ def Tetris():
 				GridPiece(pieces[-1])
 				pieces += [Piece(random.randint(1, 7), m_pos[0] // 25)]
 		GridPiece(pieces[-1])
+#		for piece in pieces:
+#			for co in piece.bottom(piece.loc[0][0]):
+#				canvas.blit(piece.faded, (co[0] * 25, co[1] * 25))
 		y = -1
 		x = -1
 		for l in grid:
@@ -126,5 +144,10 @@ def Tetris():
 			if event.type == QUIT:
 				pygame.quit()
 				sys.exit()
+			if event.type == MOUSEBUTTONDOWN:
+				RemovePiece(pieces[-1])
+				pieces[-1].move(1, 20)
+				GridPiece(pieces[-1])
+				pieces += [Piece(random.randint(1, 7), m_pos[0] // 25)]
 		pygame.display.update()
 Tetris()
