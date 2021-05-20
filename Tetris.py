@@ -39,14 +39,14 @@ class Piece:
 #		print (self.loc)
 		RemovePiece(self) #No problems
 		move_no = self.loc[0][0] - x #move_no = -5
-		for i in range(4): #loopdy loop
+		for i in range(len(self.loc)): #loopdy loop
 			if self.loc[i][0] - move_no > 9 or self.loc[i][0] - move_no < 0:
 				return
 			if move_no > 0:
 				keep_track = 0
 				for x in range(self.loc[i][0]-move_no, self.loc[i][0]):
 					if grid[self.loc[i][1]][x] != None:
-						for i in range(4):
+						for i in range(len(self.loc)):
 							self.loc[i][0] -= keep_track
 						return
 					keep_track += 1
@@ -55,7 +55,7 @@ class Piece:
 				keep_track = 0
 				for x in range(self.loc[i][0], self.loc[i][0]-move_no):
 					if grid[self.loc[i][1]][x] != None:
-						for i in range(4):
+						for i in range(len(self.loc)):
 							self.loc[i][0] -= keep_track
 						return
 					keep_track -= 1
@@ -71,7 +71,7 @@ class Piece:
 					return
 			except:
 				pass
-		for i in range(4):
+		for i in range(len(self.loc)):
 			self.loc[i][0] -= move_no
 		GridPiece(self)
 	def bottom(self, x):
@@ -85,13 +85,13 @@ class Piece:
 		for i in range(abs(speed)):
 			temp_loc = self.loc[:]
 			try:
-				for i in range(4):
+				for i in range(len(self.loc)):
 					temp_loc[i][id] += 1 if speed > 0 else -1
 			except Exception as err:
 				print (err)
 				self.final = True
 				return True
-			for i in range(4):
+			for i in range(len(self.loc)):
 				try:
 					if grid[temp_loc[i][1] + 1][temp_loc[i][0]] != None:
 						self.final = True
@@ -179,5 +179,12 @@ def Tetris():
 				pieces[-1].move(1, 20)
 				GridPiece(pieces[-1])
 				pieces += [Piece(random.randint(1, 7), m_pos[0] // 25)]
+#		for i, row in enumerate(grid):
+#			if None not in row:
+#				old_row = grid[i][:]
+#				grid[i] = [None, None, None, None, None, None, None, None, None, None]
+#				for x, piece in enumerate(old_row[:]):
+#					if piece.loc[1] == i:
+#						del old_row[i].loc[x]
 		pygame.display.update()
 Tetris()
