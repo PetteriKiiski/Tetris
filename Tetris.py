@@ -26,18 +26,40 @@ class Piece:
 		self.no_img = {1:"Yellow.png", 2:"Turqoise.png", 3:"Blue.png", 4:"Orange.png", 5:"Green.png", 6:"Purple.png", 7:"Red.png"}
 		self.no_fade = {1:"FadedYellow.png", 2:"FadedTurqoise.png", 3:"FadedBlue.png", 4:"FadedOrange.png", 5:"FadedGreen.png", 6:"FadedPurple.png", 7:"FadedRed.png"}
 		self.orig_loc = self.no_co[no]
+		self.final = False
 		self.loc = self.no_co[no][:]
 		self.set_x(x)
 		self.piece = pygame.image.load(self.no_img[no])
 		self.faded = pygame.image.load(self.no_fade[no])
 	#id == 0, x moves
 	#id == 1, y moves
+	#self.loc = [[0, 0], [1, 0], [0, 1], [1, 1]]
+	#x = 5
 	def set_x(self, x):
-		RemovePiece(self)
-		move_no = self.loc[0][0] - x
-		for i in range(4):
-			if self.loc[i][0] - move_no > 9:
+#		print (self.loc)
+		RemovePiece(self) #No problems
+		move_no = self.loc[0][0] - x #move_no = -5
+		for i in range(4): #loopdy loop
+			if self.loc[i][0] - move_no > 9 or self.loc[i][0] - move_no < 0:
 				return
+			if move_no > 0:
+				keep_track = 0
+				for x in range(self.loc[i][0]-move_no, self.loc[i][0]):
+					if grid[self.loc[i][1]][x] != None:
+						for i in range(4):
+							self.loc[i][0] -= keep_track
+						return
+					keep_track += 1
+				keep_track = 0
+			else:
+				keep_track = 0
+				for x in range(self.loc[i][0], self.loc[i][0]-move_no):
+					if grid[self.loc[i][1]][x] != None:
+						for i in range(4):
+							self.loc[i][0] -= keep_track
+						return
+					keep_track -= 1
+				keep_track = 0
 			try:
 				if grid[self.loc[i][1]][self.loc[i][0] - move_no] != None:
 					return
@@ -45,7 +67,8 @@ class Piece:
 				pass
 			try:
 				if grid[self.loc[i][1] + 1][self.loc[i][0]] != None:
-					return True
+					self.final = True
+					return
 			except:
 				pass
 		for i in range(4):
@@ -57,6 +80,8 @@ class Piece:
 		self.move(1, -20)
 		return r_val
 	def move(self, id, speed):
+		if self.final:
+			return False
 		for i in range(abs(speed)):
 			temp_loc = self.loc[:]
 			try:
@@ -64,21 +89,26 @@ class Piece:
 					temp_loc[i][id] += 1 if speed > 0 else -1
 			except Exception as err:
 				print (err)
-				return False
+				self.final = True
+				return True
 			for i in range(4):
 				try:
 					if grid[temp_loc[i][1] + 1][temp_loc[i][0]] != None:
-						return False
+						self.final = True
+						return True
 				except:
 					pass
 				if temp_loc[i][1] == 19:
-					return False
+					self.final = True
+					return True
 			self.loc = temp_loc[:]
 		return True
 def RemovePiece(piece):
+	print ("Remove:{}".format(piece.loc))
 	for co in piece.loc:
 		grid[co[1]][co[0]] = None
 def GridPiece(piece):
+	print ("Grid:{}".format(piece.loc))
 	for co in piece.loc:
 		grid[co[1]][co[0]] = piece
 def Tetris():
