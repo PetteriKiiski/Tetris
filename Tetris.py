@@ -28,6 +28,13 @@ class Piece:
 		self.orig_loc = self.no_co[no]
 		self.final = False
 		self.loc = self.no_co[no][:]
+		for x in range(0, 10):
+			for i in range(len(self.loc)):
+				try:
+					if grid[self.loc[i][1]][self.loc[i][0] + x] == None:
+						self.loc[i][0] += x
+				except:
+					break
 		self.set_x(x)
 		self.piece = pygame.image.load(self.no_img[no])
 		self.faded = pygame.image.load(self.no_fade[no])
@@ -37,28 +44,29 @@ class Piece:
 	#x = 5
 	def set_x(self, x):
 #		print (self.loc)
-		RemovePiece(self) #No problems
-		move_no = self.loc[0][0] - x #move_no = -5
-		for i in range(len(self.loc)): #loopdy loop
-			if self.loc[i][0] - move_no > 9 or self.loc[i][0] - move_no < 0:
+		RemovePiece(self) #Remove myself from the board
+		move_no = self.loc[0][0] - x #move_no = my_coordinate_list - the_x_I_want_to_change_to
+		keep_tracks = []
+		for i in range(len(self.loc)): #for i in numbers_from_0_to_the_length_of_the_list_called_self.loc:
+			if self.loc[i][0] - move_no > 9 or self.loc[i][0] - move_no < 0: #if the_x_I_want_to_chante_to_on_this_block_is_not_on_grid:
 				return
-			if move_no > 0:
-				keep_track = 0
+			if move_no > 0: #if the_caller wanted to move left
+				keep_track = move_no - 1 #keep_track of how much the piece should move by in the case if a piece was in the way of moving
 				for x in range(self.loc[i][0]-move_no, self.loc[i][0]):
 					if grid[self.loc[i][1]][x] != None:
-						for i in range(len(self.loc)):
-							self.loc[i][0] -= keep_track
-						return
-					keep_track += 1
-				keep_track = 0
-			else:
-				keep_track = 0
-				for x in range(self.loc[i][0], self.loc[i][0]-move_no):
-					if grid[self.loc[i][1]][x] != None:
-						for i in range(len(self.loc)):
-							self.loc[i][0] -= keep_track
 						return
 					keep_track -= 1
+				keep_tracks += [keep_track]
+				keep_track = 0
+			else: #otherwise
+				keep_track = 0
+				for x in range(self.loc[i][0] + 1, self.loc[i][0]-move_no):
+					if grid[self.loc[i][1]][x] != None:
+#						for i in range(len(self.loc)):
+#							self.loc[i][0] -= keep_track
+						return
+					keep_track += 1
+				keep_tracks += [keep_track]
 				keep_track = 0
 			try:
 				if grid[self.loc[i][1]][self.loc[i][0] - move_no] != None:
@@ -80,6 +88,7 @@ class Piece:
 		self.move(1, -20)
 		return r_val
 	def move(self, id, speed):
+	#	print ('move')
 		if self.final:
 			return False
 		for i in range(abs(speed)):
@@ -104,11 +113,11 @@ class Piece:
 			self.loc = temp_loc[:]
 		return True
 def RemovePiece(piece):
-	print ("Remove:{}".format(piece.loc))
+	#print ("Remove:{}".format(piece.loc)
 	for co in piece.loc:
 		grid[co[1]][co[0]] = None
 def GridPiece(piece):
-	print ("Grid:{}".format(piece.loc))
+	#print ("Grid:{}".format(piece.loc))
 	for co in piece.loc:
 		grid[co[1]][co[0]] = piece
 def Tetris():
