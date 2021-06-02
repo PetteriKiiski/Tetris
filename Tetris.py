@@ -28,13 +28,26 @@ class Piece:
 		self.orig_loc = self.no_co[no]
 		self.final = False
 		self.loc = self.no_co[no][:]
+		moveable = [False, False, False, False]
 		for x in range(0, 10):
 			for i in range(len(self.loc)):
 				try:
-					if grid[self.loc[i][1]][self.loc[i][0] + x] == None:
-						self.loc[i][0] += x
+					if grid[self.loc[i][1]][self.loc[i][0] + x] == None: #or grid[self.loc[i][1]][self.loc[i][0] + x].loc == self.loc:
+						temp_loc = self.loc[:]
+						for y in range(len(self.loc)):
+							temp_loc[y][0] += x
+						for y in temp_loc:
+							if y > 9:
+								for y in range(len(self.loc)):
+									temp_loc[y][0] -= x
+								break
+						else:
+							self.loc = temp_loc[:]
+							break
 				except:
 					break
+			else:
+				break
 		self.set_x(x)
 		self.piece = pygame.image.load(self.no_img[no])
 		self.faded = pygame.image.load(self.no_fade[no])
@@ -46,7 +59,6 @@ class Piece:
 #		print (self.loc)
 		RemovePiece(self) #Remove myself from the board
 		move_no = self.loc[0][0] - x #move_no = my_coordinate_list - the_x_I_want_to_change_to
-		keep_tracks = []
 		for i in range(len(self.loc)): #for i in numbers_from_0_to_the_length_of_the_list_called_self.loc:
 			if self.loc[i][0] - move_no > 9 or self.loc[i][0] - move_no < 0: #if the_x_I_want_to_chante_to_on_this_block_is_not_on_grid:
 				return
@@ -56,17 +68,13 @@ class Piece:
 					if grid[self.loc[i][1]][x] != None:
 						return
 					keep_track -= 1
-				keep_tracks += [keep_track]
 				keep_track = 0
 			else: #otherwise
 				keep_track = 0
 				for x in range(self.loc[i][0] + 1, self.loc[i][0]-move_no):
 					if grid[self.loc[i][1]][x] != None:
-#						for i in range(len(self.loc)):
-#							self.loc[i][0] -= keep_track
 						return
 					keep_track += 1
-				keep_tracks += [keep_track]
 				keep_track = 0
 			try:
 				if grid[self.loc[i][1]][self.loc[i][0] - move_no] != None:
@@ -76,7 +84,6 @@ class Piece:
 			try:
 				if grid[self.loc[i][1] + 1][self.loc[i][0]] != None:
 					self.final = True
-					return
 			except:
 				pass
 		for i in range(len(self.loc)):
@@ -90,7 +97,13 @@ class Piece:
 	def move(self, id, speed):
 	#	print ('move')
 		if self.final:
-			return False
+			for i in range(len(self.loc)):
+				try:
+					if grid[self.loc[i][1] + 1][self.loc[i][0]] != None:
+						return False
+				except Exception as err:
+					print ("IndexError?:{}".format(err))
+			self.final = False
 		for i in range(abs(speed)):
 			temp_loc = self.loc[:]
 			try:
@@ -107,7 +120,7 @@ class Piece:
 						return True
 				except:
 					pass
-				if temp_loc[i][1] == 19:
+				if temp_loc[i][1] + 1 == 20:
 					self.final = True
 					return True
 			self.loc = temp_loc[:]
