@@ -29,26 +29,27 @@ class Piece:
 		self.final = False
 		self.loc = self.no_co[no][:]
 		moveable = [False, False, False, False]
-		for x in range(0, 10):
-			for i in range(len(self.loc)):
-				try:
-					if grid[self.loc[i][1]][self.loc[i][0] + x] == None: #or grid[self.loc[i][1]][self.loc[i][0] + x].loc == self.loc:
-						temp_loc = self.loc[:]
-						for y in range(len(self.loc)):
-							temp_loc[y][0] += x
-						for y in temp_loc:
-							if y > 9:
-								for y in range(len(self.loc)):
-									temp_loc[y][0] -= x
-								break
-						else:
-							self.loc = temp_loc[:]
-							break
-				except:
-					break
-			else:
-				break
-		self.set_x(x)
+#		for x in range(0, 10):
+#			for i in range(len(self.loc)):
+#				try:
+#					if grid[self.loc[i][1]][self.loc[i][0] + x] == None: #or grid[self.loc[i][1]][self.loc[i][0] + x].loc == self.loc:
+#						temp_loc = self.loc[:]
+#						for y in range(len(self.loc)):
+#							temp_loc[y][0] += x
+#						for y in temp_loc:
+#							if y > 9:
+#								for y in range(len(self.loc)):
+#									temp_loc[y][0] -= x
+#								break
+#						else:
+#							self.loc = temp_loc[:]
+#							break
+#				except:
+#					break
+#			else:
+#				break
+		if self.set_x(x) == None:
+			print ("Game Over")
 		self.piece = pygame.image.load(self.no_img[no])
 		self.faded = pygame.image.load(self.no_fade[no])
 	#id == 0, x moves
