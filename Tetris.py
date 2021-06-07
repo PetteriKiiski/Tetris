@@ -48,29 +48,33 @@ class Piece:
 #					break
 #			else:
 #				break
-		if self.set_x(x) == None:
+#		for i in range(len(self.loc)):
+#			self.loc[i][0] -= self.loc[0][0] - x
+		if self.set_x(x, override=True) == False:
 			print ("Game Over")
+			self.GameOver = True
+		else:
+			self.GameOver = False
 		self.piece = pygame.image.load(self.no_img[no])
 		self.faded = pygame.image.load(self.no_fade[no])
 	#id == 0, x moves
 	#id == 1, y moves
 	#self.loc = [[0, 0], [1, 0], [0, 1], [1, 1]]
 	#x = 5
-	def set_x(self, x):
-#		print (self.loc)
-		RemovePiece(self) #Remove myself from the board
-		move_no = self.loc[0][0] - x #move_no = my_coordinate_list - the_x_I_want_to_change_to
-		for i in range(len(self.loc)): #for i in numbers_from_0_to_the_length_of_the_list_called_self.loc:
-			if self.loc[i][0] - move_no > 9 or self.loc[i][0] - move_no < 0: #if the_x_I_want_to_chante_to_on_this_block_is_not_on_grid:
+	def set_x(self, x, override=False): #Override bypasses a few rules, because of the place where you drop your piece in the beginning
+		RemovePiece(self)
+		move_no = self.loc[0][0] - x
+		for i in range(len(self.loc)):
+			if self.loc[i][0] - move_no > 9 or self.loc[i][0] - move_no < 0:
 				return
-			if move_no > 0: #if the_caller wanted to move left
-				keep_track = move_no - 1 #keep_track of how much the piece should move by in the case if a piece was in the way of moving
+			if move_no > 0 and not override:
+				keep_track = move_no - 1
 				for x in range(self.loc[i][0]-move_no, self.loc[i][0]):
 					if grid[self.loc[i][1]][x] != None:
 						return
 					keep_track -= 1
 				keep_track = 0
-			else: #otherwise
+			elif move_no < 0 and not override:
 				keep_track = 0
 				for x in range(self.loc[i][0] + 1, self.loc[i][0]-move_no):
 					if grid[self.loc[i][1]][x] != None:
@@ -79,7 +83,7 @@ class Piece:
 				keep_track = 0
 			try:
 				if grid[self.loc[i][1]][self.loc[i][0] - move_no] != None:
-					return
+					return False
 			except:
 				pass
 			try:
@@ -103,7 +107,7 @@ class Piece:
 					if grid[self.loc[i][1] + 1][self.loc[i][0]] != None:
 						return False
 				except Exception as err:
-					print ("IndexError?:{}".format(err))
+					return False
 			self.final = False
 		for i in range(abs(speed)):
 			temp_loc = self.loc[:]
@@ -134,8 +138,21 @@ def GridPiece(piece):
 	#print ("Grid:{}".format(piece.loc))
 	for co in piece.loc:
 		grid[co[1]][co[0]] = piece
+def GameOver():
+	font = pygame.font.SysFont(None, 20)
+	text = font.render('You Lose', False, (255, 255, 255), None)
+	myrect = text.get_rect()
+	myrect.centerx = canvas.get_rect().centerx
+	myrect.centery = canvas.get_rect().centery
+	canvas.blit(text, myrect)
+	while True:
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				pygame.quit()
+				sys.exit()
+		pygame.display.update()
 def Tetris():
-	global grid
+	global grid, canvas
 	blank = pygame.image.load("Blank.png")
 	grid = [ \
 	[None, None, None, None, None, None, None, None, None, None], \
@@ -178,6 +195,19 @@ def Tetris():
 			if not pieces[-1].move(1, 1):
 				GridPiece(pieces[-1])
 				pieces += [Piece(random.randint(1, 7), m_pos[0] // 25)]
+				if pieces[-1].GameOver:
+					font = pygame.font.SysFont(None, 20)
+					text = font.render('You Lose', False, (255, 255, 255), None)
+					myrect = text.get_rect()
+					myrect.centerx = canvas.get_rect().centerx
+					myrect.centery = canvas.get_rect().centery
+					canvas.blit(text, myrect)
+					while True:
+						for event in pygame.event.get():
+							if event.type == QUIT:
+								pygame.quit()
+								sys.exit()
+						pygame.display.update()
 		GridPiece(pieces[-1])
 #		for piece in pieces:
 #			for co in piece.bottom(piece.loc[0][0]):
