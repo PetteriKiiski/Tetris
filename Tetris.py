@@ -66,7 +66,12 @@ class Piece:
 		move_no = self.loc[0][0] - x
 		for i in range(len(self.loc)):
 			if self.loc[i][0] - move_no > 9 or self.loc[i][0] - move_no < 0:
-				return
+#				print (move_no)
+				if self.loc[i][0] - move_no > 9:
+					move_no += (self.loc[i][0] - move_no) - 9
+				if self.loc[i][0] - move_no < 0:
+					move_no -= (self.loc[i][0] - move_no) - 0
+#				print (move_no)
 			if move_no > 0 and not override:
 				keep_track = move_no - 1
 				for x in range(self.loc[i][0]-move_no, self.loc[i][0]):
