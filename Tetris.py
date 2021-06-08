@@ -51,10 +51,19 @@ class Piece:
 #		for i in range(len(self.loc)):
 #			self.loc[i][0] -= self.loc[0][0] - x
 		if self.set_x(x, override=True) == False:
-			print ("Game Over")
 			self.GameOver = True
 		else:
-			self.GameOver = False
+			move_no = self.loc[0][0] - x
+			for i in range(len(self.loc)):
+				try:
+					if grid[self.loc[i][1]][self.loc[i][0] - move_no] != None:
+						self.GameOver = True
+						break
+				except:
+					self.GameOver = True
+					break
+			else:
+				self.GameOver = False
 		self.piece = pygame.image.load(self.no_img[no])
 		self.faded = pygame.image.load(self.no_fade[no])
 	#id == 0, x moves
@@ -145,7 +154,7 @@ def GridPiece(piece):
 		grid[co[1]][co[0]] = piece
 def GameOver():
 	font = pygame.font.SysFont(None, 20)
-	text = font.render('You Lose', False, (255, 255, 255), None)
+	text = font.render('You Lose', False, None, (255, 255, 255))
 	myrect = text.get_rect()
 	myrect.centerx = canvas.get_rect().centerx
 	myrect.centery = canvas.get_rect().centery
@@ -202,11 +211,23 @@ def Tetris():
 				pieces += [Piece(random.randint(1, 7), m_pos[0] // 25)]
 				if pieces[-1].GameOver:
 					font = pygame.font.SysFont(None, 20)
-					text = font.render('You Lose', False, (255, 255, 255), None)
+					text = font.render('You Lose', False, (255, 255, 255))
 					myrect = text.get_rect()
 					myrect.centerx = canvas.get_rect().centerx
 					myrect.centery = canvas.get_rect().centery
+					print (myrect)
 					canvas.blit(text, myrect)
+					y = -1
+					x = -1
+					for l in grid:
+						y += 1
+						for val in l:
+							x += 1
+							if val == None:
+								canvas.blit(blank, (x*25, y*25))
+							else:
+								canvas.blit(val.piece, (x*25, y*25))
+						x = -1
 					while True:
 						for event in pygame.event.get():
 							if event.type == QUIT:
